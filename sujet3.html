@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al-Sahim2.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            background-color: #d9c0c0;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            /* Empêche la sélection de texte pour protéger le contenu */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .chat-container {
+            width: 450px;
+            height: 650px;
+            background: #242d5f;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: rgba(176, 175, 189, 0.867);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .chat-body {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #2d2d2d;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 12px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .bot {
+            background: #804c4c;
+            color: burlywood;
+            align-self: flex-start;
+        }
+
+        .user {
+            background: rgb(82, 43, 119);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .chat-footer {
+            display: flex;
+            padding: 15px;
+            background: #360a0a;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #f0f0f0;
+            color: rgb(163, 9, 9);
+            outline: none;
+        }
+
+        #sendBtn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body oncontextmenu="return false;">
+    <div class="chat-container">
+        <div class="chat-header">
+            <span>Al-sahim2.0</span>
+            <button id="darkModeToggle" style="display:none;"></button>
+        </div>
+
+        <div class="chat-body" id="chatBody">
+            <div class="message bot">Bonjour ! haltèss vous allez bien ? je suis Al-Sahim2.0 et je suis à votre
+                disposition en quoi puis je vous être utile ?</div>
+        </div>
+
+        <div class="chat-footer">
+            <input type="text" id="userInput" placeholder="Écris ton message...">
+            <button id="sendBtn">🛫🛫🛫</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. PROTECTION DU CODE SOURCE ---
+
+        // Bloquer les raccourcis clavier (F12, Ctrl+Shift+I, Ctrl+U)
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) return false; // F12
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        };
+
+        // Anti-Debugger (si quelqu'un force l'ouverture de la console)
+        setInterval(function () {
+            debugger;
+        }, 1000);
+
+
+        // --- 2. LOGIQUE DU CHAT ---
+
+        const chatBody = document.getElementById("chatBody");
+        const userInput = document.getElementById("userInput");
+        const sendButton = document.getElementById("sendBtn");
+
+        async function getResponse(userText) {
+            const apiKey = "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";
+            const url = "https://api.groq.com/openai/v1/chat/completions";
+
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{ role: "user", content: userText }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) return "Erreur API: " + data.error.message;
+                return data.choices[0].message.content;
+            } catch (error) {
+                return "Impossible de contacter l'IA.";
+            }
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (text === "") return;
+
+            chatBody.innerHTML += `<div class="message user"><b>Moi:</b> ${text}</div>`;
+            userInput.value = "";
+
+            const tempId = "loading-" + Date.now();
+            chatBody.innerHTML += `<div class="message bot" id="${tempId}"><i>L'IA réfléchit...</i></div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            const aiReply = await getResponse(text);
+            document.getElementById(tempId).innerHTML = `<b>Bot:</b> ${aiReply}`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        sendButton.onclick = sendMessage;
+
+        userInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+
+</html>
