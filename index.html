@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Al-Sahim2.0</title>
-    <link rel="stylesheet" href="iae.css">
+    
 </head>
 <body>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
     </style>
     <div class="chat-container">
         <div class="chat-header">
             <span>Al-sahim2.0</span>
-            <button id="darkModeToggle">👌👌👌👌👌</button>
+            <button id="darkModeToggle"></button>
         </div>
         
         <div class="chat-body" id="chatBody">
-            <div class="message bot">Bonjour ! Comment puis-je t'aider aujourd'hui ?</div>
+            <div class="message bot">Bonjour ! votre haltès Comment puis-je t'aider aujourd'hui ?</div>
         </div>
 
         <div class="chat-footer">
@@ -26,58 +27,9 @@
         </div>
     </div>
 
-    <script >// 1. Sélection des éléments
-const chatBody = document.getElementById('chatBody');
-const userInput = document.getElementById('userInput');
-const sendBtn = document.getElementById('sendBtn');
-
-// 2. Fonction pour afficher les bulles (indispensable !)
-function addMessage(text, sender, id = null) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message', sender);
-    if (id) msgDiv.id = id;
-    msgDiv.innerText = text;
-    chatBody.appendChild(msgDiv);
-    chatBody.scrollTop = chatBody.scrollHeight;
-}
-
-// 3. Fonction pour appeler Ollama
-async function getAIResponse(userText) {
-    const botMsgId = "bot-" + Date.now();
-    addMessage("...", 'bot', botMsgId); 
-    const botElement = document.getElementById(botMsgId);
-
-    try {
-        const response = await fetch("http://localhost:11434/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                model: "llama3",
-                prompt: userText,
-                stream: false
-            })
-        });
-
-        const data = await response.json();
-        botElement.innerText = data.response;
-
-    } catch (error) {
-        botElement.innerText = "Erreur : Vérifie que le terminal Ollama est ouvert !";
-        console.error(error);
-    }
-}
-
-// 4. Écouteur du bouton envoyer
-sendBtn.addEventListener('click', () => {
-    const message = userInput.value.trim();
-    if (message !== "") {
-        addMessage(message, 'user');
-        userInput.value = "";
-        getAIResponse(message);
-    }
-});
-</script>
-<style>body {
+   
+<style>
+body {
     background-color: #1a1a1a;
     font-family: 'Roboto', sans-serif;
     display: flex;
@@ -99,8 +51,8 @@ sendBtn.addEventListener('click', () => {
 }
 
 .chat-header {
-    background: #3d3d;
-    color: white;
+    background: rgba(121, 162, 121, 0.867);
+    color: rgb(189, 132, 132);
     padding: 15px;
     display: flex;
     justify-content: space-between;
@@ -162,5 +114,78 @@ sendBtn.addEventListener('click', () => {
     border-radius: 5px;
     cursor: pointer;
 }</style>
+<script>
+ 
+// 1. Sélection des éléments
+const chatBody = document.getElementById("chat_body");
+const userInput = document.getElementById("chat_input");
+const sendButton = document.getElementById("chat_button");
+
+// 2. La fonction qui parle à l'IA
+async function getResponse(userText) {
+    const apiKey = "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"; // <--- METS TA CLÉ GROQ ICI
+    const url = "https://api.groq.com/openai/v1/chat/completions";
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${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}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: [{ role: "user", content: userText }]
+            })
+        });
+
+        const data = await response.json();
+        
+        // Vérification si l'API renvoie une erreur
+        if (data.error) {
+            console.error("Erreur API:", data.error.message);
+            return "Erreur API: " + data.error.message;
+        }
+
+        return data.choices[0].message.content; 
+    } catch (error) {
+        console.error("Erreur Fetch:", error);
+        return "Impossible de contacter l'IA.";
+    }
+}
+
+// 3. Logique du bouton Envoyer
+sendButton.onclick = async () => {
+    const text = userInput.value;
+    if (text.trim() === "") return;
+// Permet d'envoyer le message avec la touche Entrée
+userInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        // Cela simule un clic sur le bouton envoyer
+        sendButton.click();
+    }
+});
+
+    // Affiche ton message (à droite)
+    chatBody.innerHTML += `<div class="message user" style="align-self: flex-end; background: #dcf8c6; padding: 8px; margin: 5px; border-radius: 10px;"><b>Moi:</b> ${text}</div>`;
+    userInput.value = "";
+
+    // Affiche la bulle de chargement pour le Bot
+    const tempId = "loading-" + Date.now();
+    chatBody.innerHTML += `<div class="message bot" id="${tempId}" style="align-self: flex-start; background: #eee; padding: 8px; margin: 5px; border-radius: 10px;"><i>L'IA réfléchit...</i></div>`;
+    
+    // On fait défiler vers le bas
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+    // Appel de l'IA
+    const aiReply = await getResponse(text);
+    
+    // Remplace le "L'IA réfléchit" par la vraie réponse
+    document.getElementById(tempId).innerHTML = `<b>Vague:</b> ${aiReply}`;
+    
+    // On refait défiler
+    chatBody.scrollTop = chatBody.scrollHeight;
+};
+</script>
 </body>
 </html>
