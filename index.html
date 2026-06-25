@@ -4,21 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Al-Sahim2.0</title>
-    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .chat-container {
+            width: 400px;
+            height: 550px;
+            background: #2d2d2d;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: rgba(121, 162, 121, 0.867);
+            color: #ffffff;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .chat-body {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Style des bulles de message */
+        .message {
+            padding: 10px 15px;
+            border-radius: 12px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .bot { 
+            background: #444; 
+            color: burlywood; 
+            align-self: flex-start; 
+        }
+
+        .user { 
+            background: blueviolet; 
+            color: white; 
+            align-self: flex-end; 
+        }
+
+        .chat-footer {
+            display: flex;
+            padding: 15px;
+            background: white;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #f9f9f9;
+            color: black;
+            outline: none;
+        }
+
+        #sendBtn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-    </style>
     <div class="chat-container">
         <div class="chat-header">
             <span>Al-sahim2.0</span>
-            <button id="darkModeToggle"></button>
+            <button id="darkModeToggle" style="display:none;"></button>
         </div>
         
         <div class="chat-body" id="chatBody">
-            <div class="message bot">Bonjour ! votre haltès Comment puis-je t'aider aujourd'hui ?</div>
+            <div class="message bot">Bonjour ! Comment puis-je t'aider aujourd'hui ?</div>
         </div>
 
         <div class="chat-footer">
@@ -27,110 +112,24 @@
         </div>
     </div>
 
-   
-<style>
-body {
-    background-color: #1a1a1a;
-    font-family: 'Roboto', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-.chat-container {
-    width: 400px;
-    height: 550px;
-    background: #2d2d2d;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.chat-header {
-    background: rgba(121, 162, 121, 0.867);
-    color: rgb(189, 132, 132);
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-}
-
-.chat-body {
-    flex-grow: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* Style des bulles de message */
-.message {
-    padding: 10px 15px;
-    border-radius: 12px;
-    max-width: 80%;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-.bot { 
-    background: #444; 
-    color: burlywood; 
-    align-self: flex-start; 
-}
-
-.user { 
-    background: blueviolet; 
-    color: rgb(107, 38, 38); 
-    align-self: flex-end; 
-}
-
-.chat-footer {
-    display: flex;
-    padding: 15px;
-    background: white;
-    gap: 10px;
-}
-
-#userInput {
-    flex-grow: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background: yellowgreen;
-    color: black;
-    outline: none;
-}
-
-#sendBtn {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}</style>
 <script>
- 
-// 1. Sélection des éléments
-const chatBody = document.getElementById("chat_body");
-const userInput = document.getElementById("chat_input");
-const sendButton = document.getElementById("chat_button");
+// 1. Sélection correcte des éléments selon leurs vrais IDs HTML
+const chatBody = document.getElementById("chatBody");
+const userInput = document.getElementById("userInput");
+const sendButton = document.getElementById("sendBtn");
 
 // 2. La fonction qui parle à l'IA
 async function getResponse(userText) {
-    const apiKey = "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"; // <--- METS TA CLÉ GROQ ICI
+    // METS TA CLÉ GROQ ICI
+    const apiKey = "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"; 
     const url = "https://api.groq.com/openai/v1/chat/completions";
 
     try {
         const response = await fetch(url, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${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}`,
+                // Correction ici : utilisation de la variable apiKey
+                "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
@@ -141,7 +140,6 @@ async function getResponse(userText) {
 
         const data = await response.json();
         
-        // Vérification si l'API renvoie une erreur
         if (data.error) {
             console.error("Erreur API:", data.error.message);
             return "Erreur API: " + data.error.message;
@@ -154,38 +152,43 @@ async function getResponse(userText) {
     }
 }
 
-// 3. Logique du bouton Envoyer
-sendButton.onclick = async () => {
-    const text = userInput.value;
-    if (text.trim() === "") return;
-// Permet d'envoyer le message avec la touche Entrée
-userInput.addEventListener("keypress", (event) => {
-    if (event.key === "Enter") {
-        // Cela simule un clic sur le bouton envoyer
-        sendButton.click();
-    }
-});
+// 3. Logique d'envoi du message
+async function handleSendMessage() {
+    const text = userInput.value.trim();
+    if (text === "") return;
 
     // Affiche ton message (à droite)
-    chatBody.innerHTML += `<div class="message user" style="align-self: flex-end; background: #dcf8c6; padding: 8px; margin: 5px; border-radius: 10px;"><b>Moi:</b> ${text}</div>`;
+    chatBody.innerHTML += `<div class="message user"><b>Moi:</b> ${text}</div>`;
     userInput.value = "";
 
     // Affiche la bulle de chargement pour le Bot
     const tempId = "loading-" + Date.now();
-    chatBody.innerHTML += `<div class="message bot" id="${tempId}" style="align-self: flex-start; background: #eee; padding: 8px; margin: 5px; border-radius: 10px;"><i>L'IA réfléchit...</i></div>`;
+    chatBody.innerHTML += `<div class="message bot" id="${tempId}"><i>L'IA réfléchit...</i></div>`;
     
-    // On fait défiler vers le bas
+    // Défilement vers le bas
     chatBody.scrollTop = chatBody.scrollHeight;
 
     // Appel de l'IA
     const aiReply = await getResponse(text);
     
-    // Remplace le "L'IA réfléchit" par la vraie réponse
-    document.getElementById(tempId).innerHTML = `<b>Vague:</b> ${aiReply}`;
+    // Remplace le texte de chargement par la vraie réponse
+    const loadingBubble = document.getElementById(tempId);
+    if (loadingBubble) {
+        loadingBubble.innerHTML = `<b>Al-sahim:</b> ${aiReply}`;
+    }
     
-    // On refait défiler
+    // Nouveau défilement vers le bas
     chatBody.scrollTop = chatBody.scrollHeight;
-};
+}
+
+// Liaison des événements au clic et à la touche Entrée
+sendButton.onclick = handleSendMessage;
+
+userInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        handleSendMessage();
+    }
+});
 </script>
 </body>
 </html>
